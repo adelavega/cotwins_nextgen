@@ -7,7 +7,7 @@ from database import db
 import db_utils
 import datetime
 import json
-
+import re
 import utils
 
 # Status codes
@@ -26,8 +26,53 @@ experiment_list = [
 
 @experiments.route('/', methods=['GET'])
 def index():
-    """ Welcome page, but there is none so right now its blank"""
-    return render_template("postquestionnaire.html")
+
+    browser = request.user_agent.browser
+    version = request.user_agent.version and int(request.user_agent.version.split('.')[0])
+    platform = request.user_agent.platform
+    uas = request.user_agent.string
+
+
+    ## Check that the browser is up to date and not mobile
+    if (browser == 'msie' and version < 9) \
+        or (browser == 'firefox' and version < 4) \
+        or (platform == 'android') \
+        or (platform == 'iphone') \
+        or ((platform == 'macos' or platform == 'windows') and browser == 'safari' and not re.search('Mobile', uas) and version < 534) \
+        or (re.search('iPad', uas) and browser == 'safari') \
+        or (platform == 'windows' and re.search('Windows Phone OS', uas)) \
+        or (browser == 'opera') \
+        or (re.search('BlackBerry', uas)):
+            return render_template('unsupported.html')
+
+    else:
+
+        ## If the browser is good:
+        
+        if not utils.check_qs(request.args, ['uniqueid']):
+            raise ExperimentError('improper_inputs')
+
+        if 'debug' in request.args:
+            debug = request.args['debug']
+        else:
+            debug = False
+
+        if 'new' in request.args:
+            new = request.args['new']
+
+            if isinstance(new, str):
+                new = bool(int(new))
+        else:
+            new = True 
+
+        unique_id = request.args['uniqueid']
+
+        matches = Session.query.filter((Session.gfg_id == unique_id) &
+                                              ((Session.status == 3))).all()
+
+        experiments_left = [exp for exp in experiment_list if exp[0] not in [match.exp_name for match in matches]]
+
+        return render_template("begin.html", uniqueId=unique_id, experiments=experiments_left, debug=debug, new=new)
 
 
 @experiments.route('/task', methods=['GET'])
