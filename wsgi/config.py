@@ -18,13 +18,7 @@ class StagingConfig(Config):
     except:
         pass
 
-
 # class DevelopmentConfig(Config):
 #     DEVELOPMENT = True
 #     DEBUG = True
 #     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
-class TestingConfig(Config):
-    TESTING = True
-
-
