@@ -1,4 +1,4 @@
-qimport os
+import os
 
 class Config(object):
     DEBUG = False
@@ -8,9 +8,6 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
-
 
 class StagingConfig(Config):
     DEVELOPMENT = True
@@ -25,6 +22,8 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+
 
 
 class TestingConfig(Config):
