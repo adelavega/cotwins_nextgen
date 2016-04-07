@@ -92,6 +92,8 @@ def start_exp():
     # First check if user is in db, if not add
     # This is independent of finding the specific experiment
     gfg_id = request.args['uniqueid']
+    if gfg_id == '':
+        raise ExperimentError('unknown_error', gfg_id=gfg_id)
     exp_name = request.args['experimentname']
     browser, platform = utils.check_browser_platform(request.user_agent)
 
@@ -299,6 +301,7 @@ def worker_complete():
     else:
         session_id = request.args['sessionid']
         gfg_id = request.args['uniqueid']
+        experiment_name = request.args['experimentname']
         current_app.logger.info(
             "Completed experiment %s" % (session_id))
         try:
@@ -313,7 +316,7 @@ def worker_complete():
 
         # This needs to be updated because I'm not sure where to route when all
         # is done.
-        return redirect(url_for(".index", uniqueid=gfg_id, new=False))
+        return redirect("http://co-twins.appspot.com/surveyCompleted?submissionid=%s&surveyID=%s&token=%s" %(gfg_id, experiment_name, session_id))
 
 
 # Generic route

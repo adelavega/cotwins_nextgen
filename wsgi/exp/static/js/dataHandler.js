@@ -18,7 +18,7 @@ _.extend(Backbone.Notifications, Backbone.Events);
 /*******
  * API *
  ******/
-//Called from from CStask.js or KTtask.js
+//Called from from CStas	k.js or KTtask.js
 
 //Added session id as well
 var DataHandler = function(uniqueid, experimentname, sessionid) {
@@ -204,6 +204,7 @@ var DataHandler = function(uniqueid, experimentname, sessionid) {
 	};
 
 	self.completeHIT = function() {
+		$(window).off('beforeunload'); 
 		self.teardownTask();
 
 		window.location= "/exp/worker_complete?" + "uniqueid=" + uniqueid + "&experimentname=" + experimentname + "&sessionid=" + sessionid;
