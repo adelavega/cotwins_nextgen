@@ -1,5 +1,6 @@
-# Vrieze Lab Server
-This is the base code that will be used for the Genes For Good extension server and the COTwin study to serve executive function tasks. This server can be easily expanded to server other javascript tasks of any kind. 
+# COTwins Server
+This is the repository for COTwins, serving executive functions tasks on Openshift. The codebase here reflects the live code on assesment-cotwins.rhcloud.com 
+
 
 To give credit where credit is due, this is a heavily modified version of the awesome psiTurk project. I stripped all the stuff I didn't need and added other functionality. 
 
