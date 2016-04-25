@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, current_app, url_for, redirect
+from flask import Blueprint, render_template, request, jsonify, current_app, redirect
 from errors import ExperimentError
 from models import Session, User, CategorySwitch, EventData, KeepTrack, QuestionData
 
@@ -7,7 +7,6 @@ from database import db
 import db_utils
 import datetime
 import json
-import re
 import utils
 
 # Status codes
@@ -17,7 +16,8 @@ STARTED = 2
 COMPLETED = 3
 QUITEARLY = 6
 
-if current_app.config['DEVELOPMENT'] is True:
+DEVELOPMENT = True
+if DEVELOPMENT is True:
     return_url = "http://agile-ratio-824.appspot.com/"
 else:
     return_url = "http://co-twins.appspot.com/"
@@ -28,57 +28,9 @@ experiments = Blueprint('experiments', __name__,
 experiment_list = [
     ('keep_track', "Keep Track"), ('category_switch', "Category Switch")]
 
-
 @experiments.route('/', methods=['GET'])
 def index():
-
-    browser = request.user_agent.browser
-    version = request.user_agent.version and int(request.user_agent.version.split('.')[0])
-    platform = request.user_agent.platform
-    uas = request.user_agent.string
-
-
-    ## Check that the browser is up to date and not mobile
-    if (browser == 'msie' and version < 9) \
-        or (browser == 'firefox' and version < 4) \
-        or (platform == 'android') \
-        or (platform == 'iphone') \
-        or ((platform == 'macos' or platform == 'windows') and browser == 'safari' and not re.search('Mobile', uas) and version < 534) \
-        or (re.search('iPad', uas) and browser == 'safari') \
-        or (platform == 'windows' and re.search('Windows Phone OS', uas)) \
-        or (browser == 'opera') \
-        or (re.search('BlackBerry', uas)):
-            return render_template('unsupported.html')
-
-    else:
-
-        ## If the browser is good:
-        
-        if not utils.check_qs(request.args, ['uniqueid']):
-            raise ExperimentError('improper_inputs')
-
-        if 'debug' in request.args:
-            debug = request.args['debug']
-        else:
-            debug = False
-
-        if 'new' in request.args:
-            new = request.args['new']
-
-            if isinstance(new, str):
-                new = bool(int(new))
-        else:
-            new = True 
-
-        unique_id = request.args['uniqueid']
-
-        matches = Session.query.filter((Session.gfg_id == unique_id) &
-                                              ((Session.status == 3))).all()
-
-        experiments_left = [exp for exp in experiment_list if exp[0] not in [match.exp_name for match in matches]]
-
-        return render_template("begin.html", uniqueId=unique_id, experiments=experiments_left, debug=debug, new=new)
-
+    pass
 
 @experiments.route('/task', methods=['GET'])
 @utils.nocache
@@ -87,12 +39,16 @@ def start_exp():
     If experiment is ongoing or completed, will not serve. 
 
     Querystring args (required):
-    uniqueid: External gfg_id
+    uniqueid: External token_id (refered to as gfg_id here)
     experimentname: Which experiment to serve
+    sid: sid to return to cotwins main server
     """
 
     if not utils.check_qs(request.args, ['uniqueid', 'experimentname']):
         raise ExperimentError('improper_inputs')
+
+    if utils.check_browser(request.user_agent):
+        raise ExperimentError('browser_type_not_allowed')
 
     # First check if user is in db, if not add
     # This is independent of finding the specific experiment
@@ -100,8 +56,9 @@ def start_exp():
     if gfg_id == '':
         raise ExperimentError('unknown_error', gfg_id=gfg_id)
     exp_name = request.args['experimentname']
-    browser, platform = utils.check_browser_platform(request.user_agent)
+    sid = request.args['sid']
 
+    browser, platform = utils.check_browser_platform(request.user_agent)
 
     # assert current_app.debug == False - interactive debugger
     # Check if user is in db, if not add & commit
@@ -120,7 +77,6 @@ def start_exp():
         raise ExperimentError('already_did_exp', session_id=disqualifying_sessions.session_id)
 
     # Otherwise, allow participant to re-enter
-    # (Are quit early signals sent back during instruction phase?)
     else:
         session = Session(gfg_id=gfg_id, browser=browser, platform=platform,
                           status=1, exp_name=exp_name, begin_session=datetime.datetime.now())
@@ -128,7 +84,7 @@ def start_exp():
         db.session.commit()
 
         return render_template(exp_name + "/exp.html", uniqueid=gfg_id,
-                               experimentname=exp_name, sessionid=session.session_id)
+                               experimentname=exp_name, sessionid=session.session_id, sid=sid)
 
 
 @experiments.route('/inexp', methods=['POST'])
@@ -319,9 +275,7 @@ def worker_complete():
         except SQLAlchemyError:
             raise ExperimentError('unknown_error', session_id=request.args['sessionid'])
 
-        # This needs to be updated because I'm not sure where to route when all
-        # is done.
-        return redirect(return_url + "surveyCompleted?submissionid=%s&surveyID=%s&token=%s" %(gfg_id, experiment_name, session_id))
+        return redirect(return_url + "surveyCompleted?tokenID=%s&surveyID=%s&sid=%s" % (gfg_id, experiment_name, sid))
 
 
 # Generic route

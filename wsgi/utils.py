@@ -26,6 +26,23 @@ def check_browser_platform(user_agent):
 
     return browser, platform
 
+import re
+def check_browser(ua):
+    browser = ua.browser
+    version = ua.version and int(ua.version.split('.')[0])
+    platform = ua.platform
+    uas = ua.string
+
+    return (browser == 'msie' and version < 9) \
+        or (browser == 'firefox' and version < 4) \
+        or (platform == 'android') \
+        or (platform == 'iphone') \
+        or ((platform == 'macos' or platform == 'windows') and browser == 'safari' and not re.search('Mobile', uas) and version < 534) \
+        or (re.search('iPad', uas) and browser == 'safari') \
+        or (platform == 'windows' and re.search('Windows Phone OS', uas)) \
+        or (browser == 'opera') \
+        or (re.search('BlackBerry', uas))
+
 def check_valid_json(json_input):
     # Check JSON valid
     try:

@@ -29,7 +29,10 @@ class ExperimentError(Exception):
         return repr(self.value)
         
     def error_page(self, request, contact_on_error):
-        return render_template("error.html",
-                               errornum = self.errornum,
-                               contact_address = contact_on_error, 
-                               **self.kwargs)
+        if self.errornum == 1005:
+            render_template("unsupported.py")
+        else:
+            return render_template("error.html",
+                                   errornum = self.errornum,
+                                   contact_address = contact_on_error, 
+                                   **self.kwargs)

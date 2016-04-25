@@ -18,10 +18,10 @@ _.extend(Backbone.Notifications, Backbone.Events);
 /*******
  * API *
  ******/
-//Called from from CStas	k.js or KTtask.js
+//Called from from CStask.js or KTtask.js
 
 //Added session id as well
-var DataHandler = function(uniqueid, experimentname, sessionid) {
+var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 	var self = this;
 	/****************
 	 * TASK DATA    *
@@ -32,6 +32,7 @@ var DataHandler = function(uniqueid, experimentname, sessionid) {
 		uniqueid: uniqueid,
 		experimentname: experimentname,
 		sessionid: sessionid,
+		sid: sid,
 
 		defaults: {
 			currenttrial: 0,
@@ -204,10 +205,9 @@ var DataHandler = function(uniqueid, experimentname, sessionid) {
 	};
 
 	self.completeHIT = function() {
-		$(window).off('beforeunload'); 
 		self.teardownTask();
 
-		window.location= "/exp/worker_complete?" + "uniqueid=" + uniqueid + "&experimentname=" + experimentname + "&sessionid=" + sessionid;
+		window.location= "/exp/worker_complete?" + "uniqueid=" + uniqueid + "&experimentname=" + experimentname + "&sessionid=" + sessionid + "&sid=" + sid;
 	}
 
 	// To be fleshed out with backbone views in the future.
