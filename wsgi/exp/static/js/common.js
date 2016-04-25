@@ -2,7 +2,7 @@
 (function() {
   var Debriefing, FinishInstructions, Questionnaire, Session, dataHandler, mean;
 
-  dataHandler = DataHandler(uniqueid, experimentname, sessionid);
+  dataHandler = DataHandler(uniqueid, experimentname, sessionid, sid);
 
   mean = function(numericArray) {
     var avg, sum;

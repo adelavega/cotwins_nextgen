@@ -30,7 +30,7 @@ experiment_list = [
 
 @experiments.route('/', methods=['GET'])
 def index():
-    pass
+    return render_template("default.html")
 
 @experiments.route('/task', methods=['GET'])
 @utils.nocache
@@ -44,7 +44,7 @@ def start_exp():
     sid: sid to return to cotwins main server
     """
 
-    if not utils.check_qs(request.args, ['uniqueid', 'experimentname']):
+    if not utils.check_qs(request.args, ['uniqueid', 'experimentname', 'sid']):
         raise ExperimentError('improper_inputs')
 
     if utils.check_browser(request.user_agent):
@@ -53,8 +53,6 @@ def start_exp():
     # First check if user is in db, if not add
     # This is independent of finding the specific experiment
     gfg_id = request.args['uniqueid']
-    if gfg_id == '':
-        raise ExperimentError('unknown_error', gfg_id=gfg_id)
     exp_name = request.args['experimentname']
     sid = request.args['sid']
 
@@ -263,6 +261,8 @@ def worker_complete():
         session_id = request.args['sessionid']
         gfg_id = request.args['uniqueid']
         experiment_name = request.args['experimentname']
+        sid = request.args['sid']
+        
         current_app.logger.info(
             "Completed experiment %s" % (session_id))
         try:
