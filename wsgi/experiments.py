@@ -17,6 +17,11 @@ STARTED = 2
 COMPLETED = 3
 QUITEARLY = 6
 
+if current_app.config['DEVELOPMENT'] is True:
+    return_url = "http://agile-ratio-824.appspot.com/"
+else:
+    return_url = "http://co-twins.appspot.com/"
+
 experiments = Blueprint('experiments', __name__,
                         template_folder='exp/templates', static_folder='exp/static')
 
@@ -316,7 +321,7 @@ def worker_complete():
 
         # This needs to be updated because I'm not sure where to route when all
         # is done.
-        return redirect("http://co-twins.appspot.com/surveyCompleted?submissionid=%s&surveyID=%s&token=%s" %(gfg_id, experiment_name, session_id))
+        return redirect(return_url + "surveyCompleted?submissionid=%s&surveyID=%s&token=%s" %(gfg_id, experiment_name, session_id))
 
 
 # Generic route
