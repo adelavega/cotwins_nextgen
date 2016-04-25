@@ -16,7 +16,7 @@ class StagingConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
 
 
-class DevelopmentConfig(Config):
-    DEVELOPMENT = True
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+# class DevelopmentConfig(Config):
+#     DEVELOPMENT = True
+#     DEBUG = True
+#     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
