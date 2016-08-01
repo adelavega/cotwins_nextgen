@@ -55,8 +55,8 @@ Living, press \t\t\t\t \n\n
 fkey = new Image()
 jkey = new Image()
 
-fkey.src = "static/img/f_key.png"
-jkey.src = "static/img/j_key.png"
+fkey.src = "/exp/static/img/f_key.png"
+jkey.src = "/exp/static/img/j_key.png"
 
 @fkey = fkey
 @jkey = jkey
