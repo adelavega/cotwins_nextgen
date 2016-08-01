@@ -30,7 +30,7 @@ var DataHandler = function(sessionid) {
 	 * TASK DATA    *
 	 ***************/
 	var TaskData = Backbone.Model.extend({
-		urlRoot: "sync/", // Save will PUT to /sync (data obj), with mimetype 'application/JSON'
+		urlRoot: "/exp/sync/", // Save will PUT to /sync (data obj), with mimetype 'application/JSON'
 		id: sessionid,
 
 		defaults: {
@@ -175,7 +175,7 @@ var DataHandler = function(sessionid) {
 	self.startTask = function () {
 		self.saveData();		
 
-		$.ajax("inexp", {
+		$.ajax("/exp/inexp", {
 				type: "POST",
 				data: {'sessionid': self.taskdata.id}
 		});
@@ -184,7 +184,7 @@ var DataHandler = function(sessionid) {
 			// Provide opt-out 
 		    window.onbeforeunload = function(e) {
 				self.saveData();
-				$.ajax("quitter", {
+				$.ajax("/exp/quitter", {
 						type: "POST",
 						data: {'sessionid': self.taskdata.id}
 				});
@@ -206,7 +206,7 @@ var DataHandler = function(sessionid) {
 
 	self.completeTask = function() {
 		window.onbeforeunload = null;
-		$.ajax("worker_complete", {
+		$.ajax("/exp/worker_complete", {
 			type: "POST",
 			data: {'sessionid': self.taskdata.id}
 		});
