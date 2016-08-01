@@ -66,8 +66,6 @@ def enterexp():
     refresh to start over). This changes the current sessions's status to 2.
 
     Querystring args (required):
-    uniqueid: External gfg_id
-    experimentname: Which experiment to serve
     sessionid: session identifier
     """
 
@@ -147,7 +145,7 @@ def update(session_id=None):
             experiment_class = KeepTrack
 
         db_trial, new = db_utils.get_or_create(db.session,
-            experiment_class, gfg_id=session.gfg_id, session_id=session.session_id,
+            experiment_class, token=session.token, session_id=session.session_id,
             trial_num=json_trial['current_trial'])
 
         # If the trial is new, add data
@@ -158,7 +156,7 @@ def update(session_id=None):
     # For each event, pass to parser, if not in db
     for json_event in valid_json['eventdata']:
         db_event, new = db_utils.get_or_create(db.session, EventData,
-            gfg_id=session.gfg_id, session_id=session.session_id, exp_name=session.exp_name, 
+            token=session.token, session_id=session.session_id, exp_name=session.exp_name, 
             timestamp = utils.convert_timestamp(json_event['timestamp']))
 
         if new:
@@ -168,7 +166,7 @@ def update(session_id=None):
     if valid_json['questiondata'] != {}:
         # For the QuestionData, pass to parser, if not in db
         db_ques, new = db_utils.get_or_create(db.session, QuestionData,
-                    gfg_id=session.gfg_id, session_id=session.session_id, exp_name=session.exp_name)
+                    token=session.token, session_id=session.session_id, exp_name=session.exp_name)
         db_ques.add_json_data(valid_json['questiondata']) 
         db.session.commit()
 
@@ -219,7 +217,7 @@ def worker_complete():
             db.session.commit()
             resp = {"status": "marked as done"}
             current_app.logger.info("Subject: %s marked as done" %
-                        str(session.gfg_id))
+                        str(session.token))
 
         except SQLAlchemyError:
             raise ExperimentError('unknown_error', session_id=request.args['sessionid'])
