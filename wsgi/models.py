@@ -6,14 +6,14 @@ from utils import convert_timestamp
 class Session(db.Model):
     """ Session table. One is allocated per new valid visit """
     session_id = db.Column(db.Integer, primary_key=True) 
-    token = db.Column(db.String(32), nullable=False)
-    browser = db.Column(db.String(32), nullable=False)
-    platform = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(), nullable=False)
+    browser = db.Column(db.String(), nullable=False)
+    platform = db.Column(db.String(), nullable=False)
     status = db.Column(db.Integer(), nullable=False)
-    exp_name = db.Column(db.String(32), nullable=False)
+    exp_name = db.Column(db.String(), nullable=False)
     begin_session = db.Column(db.DateTime, nullable=False)
     begin_experiment = db.Column(db.DateTime)
-    results = db.Column(db.Float(2))
+    results = db.Column(db.Float())
 
     def __repr__(self):
         return "Session values (%s, %s, %s, %s, %s)" % (self.session_id,
@@ -23,17 +23,17 @@ class Session(db.Model):
 class CategorySwitch(db.Model):
     """ CategorySwitch experiment table """
     cs_id = db.Column(db.Integer, primary_key=True) 
-    token = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
     trial_num = db.Column(db.Integer)
-    response = db.Column(db.String(2))
+    response = db.Column(db.String())
     reaction_time = db.Column(db.Float) 
     accuracy = db.Column(db.Integer)
-    block = db.Column(db.String(200))
-    question = db.Column(db.String(100))  # TBD
-    answer = db.Column(db.String(100))      # TBD
-    user_answer = db.Column(db.String(100))  # TBD
+    block = db.Column(db.String())
+    question = db.Column(db.String())  # TBD
+    answer = db.Column(db.String())      # TBD
+    user_answer = db.Column(db.String())  # TBD
     timestamp = db.Column(db.DateTime)
 
     def __repr__(self):
@@ -84,15 +84,15 @@ class CategorySwitch(db.Model):
 class KeepTrack(db.Model):
     """ KeepTrack experiment table """
     kt_id = db.Column(db.Integer, primary_key=True) 
-    token = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(), nullable=False)
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id')) 
     trial_num = db.Column(db.Integer)
     reaction_time = db.Column(db.Float)
-    accuracy = db.Column(db.String(32))
-    block = db.Column(db.String(200))
+    accuracy = db.Column(db.String())
+    block = db.Column(db.String())
     timestamp = db.Column(db.DateTime)
-    target_words = db.Column(db.String(100))
-    input_words = db.Column(db.String(100))
+    target_words = db.Column(db.String())
+    input_words = db.Column(db.String())
 
     ### FIX
     def __repr__(self):
@@ -140,11 +140,11 @@ class KeepTrack(db.Model):
 class EventData(db.Model):
     """ EventData for all experiments """
     ev_id = db.Column(db.Integer, primary_key=True) 
-    token = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(), nullable=False)
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
-    exp_name = db.Column(db.String(32), nullable=False)
-    event_type = db.Column(db.String(32))
-    value = db.Column(db.String(100)) ## Why split into three?
+    exp_name = db.Column(db.String(), nullable=False)
+    event_type = db.Column(db.String())
+    value = db.Column(db.String()) ## Why split into three?
     interval = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, nullable=False)  # to store the timestamp.
 
@@ -172,15 +172,15 @@ class EventData(db.Model):
 class QuestionData(db.Model):
     """ Feedback-form question-data for all experiments """
     q_id = db.Column(db.Integer, primary_key=True) 
-    token = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
-    exp_name = db.Column(db.String(32), nullable=False)
-    rating = db.Column(db.String(32))          
-    difficulty = db.Column(db.String(32)) 
-    distraction = db.Column(db.String(32))      #informative
+    exp_name = db.Column(db.String(), nullable=False)
+    rating = db.Column(db.String())          
+    difficulty = db.Column(db.String()) 
+    distraction = db.Column(db.String())      #informative
     #extrahelp = db.Column(db.String)        #added new
-    openended = db.Column(db.Unicode(32))
+    openended = db.Column(db.Unicode())
 
     def __repr__(self):
         pass
