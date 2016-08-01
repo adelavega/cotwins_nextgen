@@ -55,9 +55,12 @@ categories = {"Animals": ["Dog", "Cat", "Tiger", "Horse", "Lion", "Cow"], "Relat
 
 all_cats = ['Distances', 'Relatives', 'Animals', 'Countries', 'Metals', 'Colors']
 
-stimLength = 2000
+if debug is "True"
+	window.stimLength = 50
+else
+	window.stimLength = 2000
 
-
+stimLength = window.stimLength
 ## Instruction block
 ## Will display instructions in @message, and set left and right buttons to said text
 ## Can optionally take a correct response (if incorrect, will not allow you to advance) & button colors
@@ -85,13 +88,13 @@ class Instruction
 		if @corrResp?
 			if @corrResp is button
 				$('#correct').modal('show')
-				setTimeout (=> $('#correct').modal('hide')), 1250
-				setTimeout (=> @exitTrial()), 1250
+				setTimeout (=> $('#correct').modal('hide')), 2000
+				setTimeout (=> @exitTrial()), 2000
 				acc = 1
 			else
 			## Show incorrect message
 				$('#error').modal('show')
-				setTimeout (=> $('#error').modal('hide')), 1250
+				setTimeout (=> $('#error').modal('hide')), 2000
 				acc = 0
 		else # If there is no correct answer, just record what was pressed
 			if button.id is 'leftText' or button.id is 'leftButton'
@@ -171,25 +174,24 @@ class InstGrid
 		if allCorr
 			closeGrid(@exitTrial)
 			$('#correct').modal('show')
-			$('#errortext').html("Try again")
-			setTimeout (=> $('#correct').modal('hide')), 1250
-
+			setTimeout (=> $('#correct').modal('hide')), 1500
+			$('#errortext').html("Incorrect! Try again.")
 		else
 			@showError()
 
 	showError: ->
 		if @nClicks >= @triesBeforeHint
-			$('#errortext').html("The correct words are " + @correct.join(', '))
+			$('#errortext').html("Hint: The correct words are " + @correct.join(', '))
 
 		$('#error').modal('show')
-		setTimeout (=> $('#error').modal('hide')), 1500
+		setTimeout (=> $('#error').modal('hide')), 1800
 
 class Block
 	constructor: (@condition, @message, trial_structure) ->
 		@trialNumber = 0
 		@categories = trial_structure[0]
 		@target_words = trial_structure[1]
-		@words = (new Word(word, 2000) for word in trial_structure[2])
+		@words = (new Word(word, stimLength) for word in trial_structure[2])
 		@max_trials = @words.length
 		
 		upper_cats = [cat.toUpperCase() for cat in @categories]

@@ -1,4 +1,7 @@
-/*
+
+/* Heavily derived by psiTurk.js
+ *
+ * 
  * Requires:
  *     jquery
  *     backbone
@@ -21,18 +24,14 @@ _.extend(Backbone.Notifications, Backbone.Events);
 //Called from from CStask.js or KTtask.js
 
 //Added session id as well
-var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
+var DataHandler = function(sessionid) {
 	var self = this;
 	/****************
 	 * TASK DATA    *
 	 ***************/
 	var TaskData = Backbone.Model.extend({
-		urlRoot: "/exp/sync/", // Save will PUT to /sync (data obj), with mimetype 'application/JSON'
-		id: uniqueid + "&" + experimentname + "&"+ sessionid,
-		uniqueid: uniqueid,
-		experimentname: experimentname,
-		sessionid: sessionid,
-		sid: sid,
+		urlRoot: "sync/", // Save will PUT to /sync (data obj), with mimetype 'application/JSON'
+		id: sessionid,
 
 		defaults: {
 			currenttrial: 0,
@@ -45,7 +44,7 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 			Each function builds up the JSON (key-value pairs)
 			initialize - just loads data about window resize etc. [Status = 0]
 			addTrialData - 'data' gets populated with each new trial in the instructions phase [Status=1]
-			addUnstructuredData - 'questiondata' gets populatedwith the questions only once the user neters the actual experiment phase [Status = 2]
+			addUnstructuredData - 'questiondata' gets populatedwith the questions only once the user enters the actual experiment phase [Status = 2]
 									maybe empty if the user decides to quit at instructions phase itself
 			addEvent - Just like addTrialData, 'eventdata' getspopulated with every new event & its details(of coz) as and when the event 'initialized' is triggerd
 		*/
@@ -65,7 +64,7 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 		//populates the "data" in JSON and appends each new trrial to it
 		// New Model -  we need to add each trail as a new row in the table - Category_switch 
 		addTrialData: function(trialdata) {
-			trialdata = {"uniqueid":this.uniqueid, "current_trial":this.get("currenttrial"), "dateTime":(new Date().getTime()), "trialdata":trialdata};
+			trialdata = {"sessionid":this.id, "current_trial":this.get("currenttrial"), "dateTime":(new Date().getTime()), "trialdata":trialdata};
 			var data = this.get('data');
 			data.push(trialdata);
 			this.set('data', data);
@@ -121,7 +120,7 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 		});
 	};
 	
-	//I dont get this :(
+
 	self.preloadPages = function(pagenames) {
 		// Synchronously preload pages.
 		$(pagenames).each(function() {
@@ -178,19 +177,20 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 
 		$.ajax("inexp", {
 				type: "POST",
-				data: {'uniqueid' : self.taskdata.uniqueid, 'experimentname': self.taskdata.experimentname, 'sessionid': self.taskdata.sessionid}
+				data: {'sessionid': self.taskdata.id}
 		});
 		
 		if (self.taskdata.mode != 'debug') {  //don't block people from reloading in debug mode
 			// Provide opt-out 
-			$(window).on("beforeunload", function(){
+		    window.onbeforeunload = function(e) {
 				self.saveData();
 				$.ajax("quitter", {
 						type: "POST",
-						data: {'uniqueid' : self.taskdata.uniqueid, 'experimentname': self.taskdata.experimentname, 'sessionid': self.taskdata.sessionid}
+						data: {'sessionid': self.taskdata.id}
 				});
 				return "By leaving or reloading this page, you opt out of the experiment.  Are you sure you want to leave the experiment?";
-			});
+		    };
+
 		}
 
 	};
@@ -204,10 +204,23 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 		Backbone.Notifications.trigger('_psiturk_finishedtask', optmessage);
 	};
 
-	self.completeHIT = function() {
-		self.teardownTask();
+	self.completeTask = function() {
+		window.onbeforeunload = null;
+		$.ajax("worker_complete", {
+			type: "POST",
+			data: {'sessionid': self.taskdata.id}
+		});
+	}
 
-		window.location= "/exp/worker_complete?" + "uniqueid=" + uniqueid + "&experimentname=" + experimentname + "&sessionid=" + sessionid + "&sid=" + sid;
+	self.exitTask = function(){
+		$.ajax("/gfg/lib/interactive_survey_module_handler.php", {
+			type: "POST",
+			data: {
+				action: "complete"
+		}
+		});
+		opener.completeInteractiveSurvey();
+		window.location.replace('results?uniqueid=' + uniqueid + '&experimentname=' + experimentname)
 	}
 
 	// To be fleshed out with backbone views in the future.
@@ -227,8 +240,6 @@ var DataHandler = function(uniqueid, experimentname, sessionid, sid) {
 
 	/* Backbone stuff */
 	Backbone.Notifications.on('_psiturk_finishedinstructions', self.startTask);
-	Backbone.Notifications.on('_psiturk_finishedtask', function(msg) { $(window).off("beforeunload"); });
-
 
 	$(window).blur( function() {
 		Backbone.Notifications.trigger('_psiturk_lostfocus');

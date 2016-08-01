@@ -20,6 +20,7 @@ class ExperimentError(Exception):
             error_setting_worker_complete = 1006,
             hit_not_registered_with_ad_server = 1018,
             unknown_error = 9999,
+            user_access_denied = 1007
         )
         self.value = value
         self.errornum = experiment_errors[self.value]
@@ -29,10 +30,7 @@ class ExperimentError(Exception):
         return repr(self.value)
         
     def error_page(self, request, contact_on_error):
-        if self.errornum == 1005:
-            render_template("unsupported.py")
-        else:
-            return render_template("error.html",
-                                   errornum = self.errornum,
-                                   contact_address = contact_on_error, 
-                                   **self.kwargs)
+        return render_template("error.html",
+                               errornum = self.errornum,
+                               contact_address = contact_on_error, 
+                               **self.kwargs)

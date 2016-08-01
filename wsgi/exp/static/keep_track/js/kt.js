@@ -73,7 +73,13 @@
 
   all_cats = ['Distances', 'Relatives', 'Animals', 'Countries', 'Metals', 'Colors'];
 
-  stimLength = 2000;
+  if (debug === "True") {
+    window.stimLength = 50;
+  } else {
+    window.stimLength = 2000;
+  }
+
+  stimLength = window.stimLength;
 
   Instruction = (function() {
     function Instruction(message, leftKey, rightKey, corrResp) {
@@ -105,12 +111,12 @@
             return function() {
               return $('#correct').modal('hide');
             };
-          })(this)), 1250);
+          })(this)), 2000);
           setTimeout(((function(_this) {
             return function() {
               return _this.exitTrial();
             };
-          })(this)), 1250);
+          })(this)), 2000);
           acc = 1;
         } else {
           $('#error').modal('show');
@@ -118,7 +124,7 @@
             return function() {
               return $('#error').modal('hide');
             };
-          })(this)), 1250);
+          })(this)), 2000);
           acc = 0;
         }
       } else {
@@ -218,12 +224,12 @@
       if (allCorr) {
         closeGrid(this.exitTrial);
         $('#correct').modal('show');
-        $('#errortext').html("Try again");
-        return setTimeout(((function(_this) {
+        setTimeout(((function(_this) {
           return function() {
             return $('#correct').modal('hide');
           };
-        })(this)), 1250);
+        })(this)), 1500);
+        return $('#errortext').html("Incorrect! Try again.");
       } else {
         return this.showError();
       }
@@ -231,14 +237,14 @@
 
     InstGrid.prototype.showError = function() {
       if (this.nClicks >= this.triesBeforeHint) {
-        $('#errortext').html("The correct words are " + this.correct.join(', '));
+        $('#errortext').html("Hint: The correct words are " + this.correct.join(', '));
       }
       $('#error').modal('show');
       return setTimeout(((function(_this) {
         return function() {
           return $('#error').modal('hide');
         };
-      })(this)), 1500);
+      })(this)), 1800);
     };
 
     return InstGrid;
@@ -259,7 +265,7 @@
         results = [];
         for (j = 0, len = ref.length; j < len; j++) {
           word = ref[j];
-          results.push(new Word(word, 2000));
+          results.push(new Word(word, stimLength));
         }
         return results;
       })();

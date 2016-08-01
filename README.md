@@ -1,56 +1,97 @@
-# COTwins Server
-This is the repository for COTwins, serving executive functions tasks on Openshift. The codebase here reflects the live code on assesment-cotwins.rhcloud.com 
-
-
-To give credit where credit is due, this is a heavily modified version of the awesome psiTurk project. I stripped all the stuff I didn't need and added other functionality. 
-
-Below, I describe the organization of the project, how to add tasks to the project, and how to deploy the server. 
+# GfG Interactive Survey Module
+This module serves interactive javascript surveys (such as cognitive tasks) for GenesforGood. This module was original based on psiTurk, and uses an identical javascript API to send data back to the server (here called dataHandler). 
 
 ## Installation
-This project has a few dependencies, but  not all are necessary for serving the tasks. The more complex dependencies are for the dashboard.
-
 Basic dependencies:
 
 * Flask
 * Flask-Migrate
 * Flask-SQLAlchemy
 * Alembic
+
+If using Postgres:
 * Psycopg2
-* PostgreSQL database
 
-Most of these are quite easy to install using pip. The easiest way to install a PostgreSQL database on a mac is using postgres.app. 
+If using MySQL:
+* mysql-python
 
-## Testing & Deployment
-### Local testing
-To test this app localy, install the dependencies and set the URI of your database using the 'DATABASE_URL' environment variable. E.g.:
+To install dependencies run the following command. It is reccomended you do this in a virtual environment (set up virtualenv one folder above this one). Make sure to also install the correct dependency for your DB manually.
 
-    export DATABASE_URL="postgresql://localhost/gfg_dev"
-This is automatically set up for you if you launch the virtualenv in this repo:
+    pip -r requirements.txt
 
-    source bin/activate
+### Configuration
+The type of configuration is set using the config.ini file. By default, it is set to "HomeConfig" which is for local testing. Edit this file to match the appropriate configuration (e.g. Staging, Production).
 
-Next, you must initiate the database and migrate it for the first time using the following commands
+The file wsgi/config.py specifies configuration details, such as the database URI and credentials to use. 
+COPY example_config.py to config.py and edit with the appropriate details. Ensure that you have credted a specific database to be used. 
+
+### Database set up and inital migration
+We use Alembic to track database migrations. To initate the db and perform the first migration, run the following commands:
 
     python manage.py db init
     python manage.py db migrate
     python manage.py db upgrade
     
-Any time you change the data model in models.py, run the last two commands again to update your SQL database. 
+    
+## Deployment and testing
+### Local testing
 
-If you've done everything right, you should be able to launch flask locally to test:
+To test locally, simply type the following:
 
     python wsgi/app.py
    
 This should launch on localhost for your local testing pleasure. 
 	
+### Devbox deployment
+1) Clone this repo into /var/www
+
+2) Install pip:
+
+    curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+    sudo python get-pip.py
+    
+3) Install system dependencies
+
+    sudo apt-get install python-dev libmysqlclient-dev libapache2-mod-wsgi
+    
+4) Create virtual environment and activate (in /var/www/gfginteractive)
+
+    virtualenv venv
+    source venv/bin/activate
+    
+5) Install python dependencies
+
+    pip install -r requirements.txt
+    
+6) Copy config files from example ones and add SQL credentials. Also, make sure config.ini is in gfg_interactive/
+
+7) Set permission of relevant files to +755 (check w/ Chris on this)
+
+    sudo chmod -R +755 gfg-interactive/
+
+8) Edit apache config to enable WSGI. Relevant section should look like:
+
+    WSGIDaemonProcess gfg-interactive user=www-data group=www-data threads=5
+    WSGIScriptAlias /gfg-interactive /var/www/gfginteractive/gfginteractive.wsgi
+    <Directory "/var/www/gfginteractive/">
+        WSGIProcessGroup gfg-interactive
+        WSGIApplicationGroup %{GLOBAL}
+        Require all granted
+    </Directory>
+
+9) Initatialize db
+
+    sudo gfginteractive/venv/bin/python gfginteractive/gfg_interactive/manage.py db init
+    sudo gfginteractive/venv/bin/python gfginteractive/gfg_interactive/manage.py db migrate
+    sudo gfginteractive/venv/bin/python gfginteractive/gfg_interactive/manage.py db upgrade
+
+	
 ### OpenShift deployment
 OpenShift is a great platform-as-a-service (PaaS) that enables rapid deployment using Github. The easiest way to launch this service is to create a new app on OpenShift that has both "Python 2.7" and "PostgreSQL" installed as cartridges. OpenShift allows you to use a Github repository as a starting point for your app. Simply point it to this repo and it should install everything correctly. 
 
-The PostgreSQL cartridge has a URI that includes the authentication information and is saved as a environment variable. This app will automatically read it (in accordance with config.py) as long as you tell it that you are testing on OpenShift. Do so by setting the environment variable APP_SETTINGS to config.StagingConfig using the rhc command line tools:
+The PostgreSQL cartridge has a URI that includes the authentication information and is saved as a environment variable. This app will automatically read it (in accordance with config.py) as long as you tell it that you are testing on OpenShift. Do so by setting config.ini to config.OpenShift using the rhc command line tools:
 
-    rhc env set APP_SETTINGS="config.StagingConfig" -a App_Name
-    
- If everything went well, your app should be up and running on rhcloud. 
+If everything went well, your app should be up and running on rhcloud. 
 
 ## Documentation
 Here I will document various aspects of this project in order to allow you to edit the server and deploy new assesments. 

@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 """ This module provides the backend Flask server. """
-import os
-
 # Setup flask
 from flask import Flask, render_template
 from experiments import experiments
 #from dashboard import dashboard
-
+import os
 from database import db
+import ConfigParser
+
+# Load configuration
+Config = ConfigParser.ConfigParser()
+Config.read(os.path.join(os.path.dirname(__file__), "config.ini"))
 
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(Config.get("General", "config"))
 app.register_blueprint(experiments, url_prefix='/exp')
+app.debug = app.config['DEBUG']
 
 db.init_app(app)
 
@@ -27,7 +31,5 @@ def favicon():
     ''' Serve favicon '''
     return app.send_static_file('favicon.ico')
 
-
 if __name__ == '__main__':
-	app.debug = True
 	app.run()

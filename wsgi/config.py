@@ -5,6 +5,13 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = '\xc8U;\xe2w\xb3[c-:\xceeKu\xc9f\xd2\xaac\xfb\x1dZ\xc2\xc2'
+    EXP_DEBUG = False
+
+    try:
+        SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
+    except:
+        pass
+
 
 class ProductionConfig(Config):
     DEBUG = False
@@ -13,10 +20,11 @@ class StagingConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
 
-    SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
+class DevelopmentConfig(Config):
+    DEVELOPMENT = True
+    DEBUG = True
+    EXP_DEBUG = True
 
 
-# class DevelopmentConfig(Config):
-#     DEVELOPMENT = True
-#     DEBUG = True
-#     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+
+

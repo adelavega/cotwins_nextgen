@@ -26,23 +26,6 @@ def check_browser_platform(user_agent):
 
     return browser, platform
 
-import re
-def check_browser(ua):
-    browser = ua.browser
-    version = ua.version and int(ua.version.split('.')[0])
-    platform = ua.platform
-    uas = ua.string
-
-    return (browser == 'msie' and version < 9) \
-        or (browser == 'firefox' and version < 4) \
-        or (platform == 'android') \
-        or (platform == 'iphone') \
-        or ((platform == 'macos' or platform == 'windows') and browser == 'safari' and not re.search('Mobile', uas) and version < 534) \
-        or (re.search('iPad', uas) and browser == 'safari') \
-        or (platform == 'windows' and re.search('Windows Phone OS', uas)) \
-        or (browser == 'opera') \
-        or (re.search('BlackBerry', uas))
-
 def check_valid_json(json_input):
     # Check JSON valid
     try:
@@ -56,3 +39,14 @@ def check_valid_json(json_input):
 def convert_timestamp(json_timestamp):
     import datetime
     return datetime.datetime.fromtimestamp(json_timestamp/1000.0)
+
+def decrypt(key, msg):  
+    import urllib
+    url_dec = urllib.unquote(msg)
+
+    import base64
+    base_decoded = base64.b64decode(url_dec)
+
+    from Crypto.Cipher import Blowfish
+    decode_cipher = Blowfish.new(key, Blowfish.MODE_CFB, base_decoded[0:8])
+    return decode_cipher.decrypt(base_decoded[8:])
