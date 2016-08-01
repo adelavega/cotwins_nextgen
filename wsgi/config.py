@@ -10,8 +10,7 @@ class Config(object):
     try:
         SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
     except:
-        pass
-
+        SQLALCHEMY_DATABASE_URI = 'postgres://localhost/assesment'
 
 class ProductionConfig(Config):
     DEBUG = False
