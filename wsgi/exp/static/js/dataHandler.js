@@ -213,14 +213,7 @@ var DataHandler = function(sessionid) {
 	}
 
 	self.exitTask = function(){
-		$.ajax("/gfg/lib/interactive_survey_module_handler.php", {
-			type: "POST",
-			data: {
-				action: "complete"
-		}
-		});
-		opener.completeInteractiveSurvey();
-		window.location.replace('results?uniqueid=' + uniqueid + '&experimentname=' + experimentname)
+		window.location.replace('http://co-twins.appspot.com/surveyCompleted?tokenID=' + uniqueid +  '&surveyID=' + experimentname)
 	}
 
 	// To be fleshed out with backbone views in the future.

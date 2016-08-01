@@ -3,20 +3,10 @@ from flask import current_app
 from db_utils import clean_db_string
 from utils import convert_timestamp
 
-
-class Participant(db.Model):
-    """ Participant id table """
-    id = db.Column(db.Integer, primary_key=True)
-    gfg_id = db.Column(db.String(32), nullable=False)
-
-    def __repr__(self):
-        return "Store_user values (%s, %s)" % (self.id, self.gfg_id)
-
-
 class Session(db.Model):
     """ Session table. One is allocated per new valid visit """
     session_id = db.Column(db.Integer, primary_key=True) 
-    gfg_id = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(32), nullable=False)
     browser = db.Column(db.String(32), nullable=False)
     platform = db.Column(db.String(32), nullable=False)
     status = db.Column(db.Integer(), nullable=False)
@@ -27,13 +17,13 @@ class Session(db.Model):
 
     def __repr__(self):
         return "Session values (%s, %s, %s, %s, %s)" % (self.session_id,
-            self.gfg_id,self.exp_name, self.status, self.begin_session)
+            self.token,self.exp_name, self.status, self.begin_session)
 
 
 class CategorySwitch(db.Model):
     """ CategorySwitch experiment table """
     cs_id = db.Column(db.Integer, primary_key=True) 
-    gfg_id = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(32), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
     trial_num = db.Column(db.Integer)
@@ -47,7 +37,7 @@ class CategorySwitch(db.Model):
     timestamp = db.Column(db.DateTime)
 
     def __repr__(self):
-        return "CS Values (%s, %s, %s, %s)" % (self.cs_id, self.gfg_id,
+        return "CS Values (%s, %s, %s, %s)" % (self.cs_id, self.token,
             self.session_id, self.trial_num)
 
     def add_json_data(self, json_trial):
@@ -94,7 +84,7 @@ class CategorySwitch(db.Model):
 class KeepTrack(db.Model):
     """ KeepTrack experiment table """
     kt_id = db.Column(db.Integer, primary_key=True) 
-    gfg_id = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(32), nullable=False)
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id')) 
     trial_num = db.Column(db.Integer)
     reaction_time = db.Column(db.Float)
@@ -106,7 +96,7 @@ class KeepTrack(db.Model):
 
     ### FIX
     def __repr__(self):
-        return "KT Values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (self.kt_id, self.gfg_id, 
+        return "KT Values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (self.kt_id, self.token, 
         self.session_id, self.trial_num, self.reaction_time, self.accuracy, self.block, 
         self.timestamp, self.target_words, self.input_words)
 
@@ -150,7 +140,7 @@ class KeepTrack(db.Model):
 class EventData(db.Model):
     """ EventData for all experiments """
     ev_id = db.Column(db.Integer, primary_key=True) 
-    gfg_id = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(32), nullable=False)
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
     exp_name = db.Column(db.String(32), nullable=False)
     event_type = db.Column(db.String(32))
@@ -182,7 +172,7 @@ class EventData(db.Model):
 class QuestionData(db.Model):
     """ Feedback-form question-data for all experiments """
     q_id = db.Column(db.Integer, primary_key=True) 
-    gfg_id = db.Column(db.String(32), nullable=False)
+    token = db.Column(db.String(32), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
     exp_name = db.Column(db.String(32), nullable=False)

@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, jsonify, current_app, url_for, redirect
+from flask import Blueprint, render_template, request, jsonify, current_app
 from errors import ExperimentError
-from models import Session, Participant, CategorySwitch, EventData, KeepTrack, QuestionData
-from sqlalchemy import func
+from models import Session, CategorySwitch, EventData, KeepTrack, QuestionData
 from sqlalchemy.exc import SQLAlchemyError
 from database import db
 import db_utils
@@ -9,7 +8,6 @@ import datetime
 import json
 
 import utils
-import stats
 
 # Status codes
 NOT_ACCEPTED = 0
@@ -28,55 +26,34 @@ def index():
     """ Welcome page, but there is none so right now its blank"""
     return render_template("default.html")
 
-@experiments.route('/task', methods=['GET'])
+@experiments.route('/task/<exp_name>', methods=['GET'])
 @utils.nocache
-def start_exp():
+def start_exp(exp_name):
     """ Serves up the experiment applet. 
     If experiment is ongoing or completed, will not serve. 
 
     Querystring args (required):
-    uniqueid: External gfg_id
-    surveyid: Which experiment to serve
+    token: External token
     """
 
-    if not utils.check_qs(request.args, ['uniqueid', 'surveyid']):
+    if not utils.check_qs(request.args, ['token']):
         raise ExperimentError('improper_inputs')
     else:
-        uniqueid = request.args['uniqueid']
-
-    gfg_id = utils.decrypt(str(current_app.config['SECRET_KEY']), str(uniqueid).decode('string-escape'))
-
-    exp_name = experiment_list[request.args['surveyid']]
-    survey_id = request.args['surveyid']
+        token = request.args['token']
+    
     browser, platform = utils.check_browser_platform(request.user_agent)
 
-    if not db_utils.gfg_user_exists(gfg_id, current_app.config['RESEARCH_DB_HOST'],
-     current_app.config['RESEARCH_DB_USER'],
-        current_app.config['RESEARCH_DB_PASSWORD'], current_app.config['RESEARCH_DB_NAME']):
-        raise ExperimentError('user_access_denied')
-
-    # Check if user is in db, if not add & commit
-    user, new_user = db_utils.get_or_create(db.session, Participant, gfg_id=gfg_id)
-
     current_app.logger.info("Subject: %s entered with %s platform and %s browser" %
-                            (gfg_id, platform, browser))
+                            (token, platform, browser))
 
-    # If any existing session that disqualify user (ongoing or completed), throw error
-    # Otherwise, create new session and serve experiment
-    disqualifying_sessions = Session.query.filter_by(gfg_id = gfg_id, exp_name = exp_name, status = 3).first()
+    session = Session(token=token, browser=browser, platform=platform,
+                      status=1, exp_name=exp_name, begin_session=datetime.datetime.now())
+    db.session.add(session)
+    db.session.commit()
 
-    if disqualifying_sessions and current_app.config['EXP_DEBUG'] == False:
-        raise ExperimentError('already_did_exp', session_id=disqualifying_sessions.session_id)
-
-    # Otherwise, allow participant to re-enter
-    else:
-        session = Session(gfg_id=gfg_id, browser=browser, platform=platform,
-                          status=1, exp_name=exp_name, begin_session=datetime.datetime.now())
-        db.session.add(session)
-        db.session.commit()
-
-        return render_template(exp_name + "/exp.html", experimentname=exp_name, surveyid=survey_id, sessionid=session.session_id, debug=current_app.config['EXP_DEBUG'],
-            uniqueid=uniqueid)
+    return render_template(exp_name + "/exp.html", experimentname=exp_name, 
+        sessionid=session.session_id, debug=current_app.config['EXP_DEBUG'],
+        uniqueid=token)
 
 
 @experiments.route('/inexp', methods=['POST'])
@@ -117,24 +94,6 @@ def enterexp():
         resp = {"status": "error, session not found"}
 
     return jsonify(**resp)
-
-
-def parse_id_exp(id_exp):
-    resp = None
-    try:
-        gfg_id, exp_name, session_id = id_exp.split("&")
-    except ValueError:
-        resp = {"status": "bad request"}
-        current_app.logger.error("Could not parse id")
-    else:
-        try:
-            session = Session.query.filter_by(session_id=session_id).one()
-        except SQLAlchemyError:
-            resp = {"status": "bad request"}
-            current_app.logger.error("DB error: Unique user not found.")
-
-    return (gfg_id, exp_name, session_id), session, resp
-
 
 @experiments.route('/sync/<session_id>', methods=['GET'])
 def load(session_id=None):
@@ -267,79 +226,6 @@ def worker_complete():
             resp = {"status": "db error"}
 
         return jsonify(**resp)
-
-@experiments.route('/results', methods=['GET'])
-def results():
-    """Return results at the end."""
-    if not utils.check_qs(request.args, ['uniqueid', 'experimentname']):
-        raise ExperimentError('improper_inputs')
-    else:
-        uniqueid = request.args['uniqueid']
-        exp_name = request.args['experimentname']
-
-    current_app.logger.info("Results::Uniqueid is  %s and exp_name is %s" %(uniqueid, exp_name))
-    ## Get last session with code 3 from user
-    gfg_id = utils.decrypt(str(current_app.config['SECRET_KEY']), str(uniqueid))
-    current_app.logger.info("GFG id after decrypt is -- %s" % (gfg_id))
-
-    try:
-        session = Session.query.filter_by(gfg_id=gfg_id, status=3, exp_name=exp_name).order_by(Session.session_id.desc()).first()
-    except SQLAlchemyError:
-        raise ExperimentError('user_access_denied')
-
-    if session is None :
-	current_app.logger.info("Session is null---%s" %(session))
-	raise ExperimentError('user_access_denied')
-
-    elif session.exp_name == "keep_track":
-        target_trials = KeepTrack.query.filter(KeepTrack.session_id==session.session_id, 
-            KeepTrack.block.in_(["1", "2", "3", "4", "5", "6"])).all()
-
-        all_scored = [] 
-        for trial in target_trials:
-            score = trial.simple_score()
-            all_scored += score
-            current_app.logger.info("trial score: %s, block: %s, inwords: %s" % (str(score), trial.block, str(trial.input_words)))
-
-        ## This first value should be stored
-        score = sum(all_scored) / (len(all_scored)  * 1.0)
-
-    elif session.exp_name == "category_switch":
-        single_trials_avg = db.session.query(func.avg(CategorySwitch.reaction_time).label('average')).filter(
-            CategorySwitch.session_id==session.session_id, CategorySwitch.block.in_(["sizeReal", "livingReal"]), 
-                CategorySwitch.accuracy==1).all()
-        mixed_trials_avg = db.session.query(func.avg(CategorySwitch.reaction_time).label('average')).filter(
-            CategorySwitch.session_id==session.session_id, CategorySwitch.block.in_(["mixedReal1", "mixedReal2"]), 
-                CategorySwitch.accuracy==1).all()
-
-        ## This value also needs to be stored
-        score = mixed_trials_avg[0][0] - single_trials_avg[0][0]
-
-    session.results = score
-    db.session.commit()
-
-    ## Find other people in same age range. If more than 25, calculate percentile and display
-    age_matched_ids = db_utils.get_age_matched_ids(gfg_id, current_app.config['RESEARCH_DB_HOST'], current_app.config['RESEARCH_DB_USER'],
-    current_app.config['RESEARCH_DB_PASSWORD'], current_app.config['RESEARCH_DB_NAME'])
-
-
-    if len(age_matched_ids) > 20:
-        mean_score = db.session.query(func.avg(Session.results).label('average')).filter(
-        Session.gfg_id.in_(age_matched_ids), Session.exp_name == session.exp_name, Session.status==3).all()
-
-        std_score = db.session.query(func.STD(Session.results).label('average')).filter(
-        Session.gfg_id.in_(age_matched_ids), Session.exp_name == session.exp_name, Session.status==3).all()
-
-        print mean_score
-
-        percentile = stats.z2p((score - mean_score[0][0]) / (std_score[0][0] + 0.0000001))
-    else:
-        percentile = None
-
-    return render_template(session.exp_name + "/results.html", 
-        score=score,
-        percentile=percentile)
-
 
 # Generic route
 @experiments.route('/<pagename>')
