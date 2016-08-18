@@ -64,6 +64,7 @@ class Session
 	
 	# Ends it all
 	endSession: ->
+		dataHandler.completeTask()
 		dataHandler.exitTask()
 
 	keyPress: (e) ->

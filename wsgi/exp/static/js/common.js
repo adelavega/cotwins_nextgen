@@ -69,6 +69,7 @@
     };
 
     Session.prototype.endSession = function() {
+      dataHandler.completeTask();
       return dataHandler.exitTask();
     };
 
