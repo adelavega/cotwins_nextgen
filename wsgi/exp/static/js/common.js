@@ -122,7 +122,6 @@
   this.dataHandler = dataHandler;
 
   this.common = {
-    Questionnaire: Questionnaire,
     Debriefing: Debriefing,
     FinishInstructions: FinishInstructions,
     mean: mean,

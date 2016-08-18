@@ -116,7 +116,6 @@ class FinishInstructions
 @dataHandler = dataHandler
 
 @common = {
-	Questionnaire
 	Debriefing
 	FinishInstructions
 	mean
