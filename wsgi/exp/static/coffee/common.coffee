@@ -6,7 +6,6 @@
 ## Alternatively set this up for local server hosting using dataHandler.js
 
 dataHandler = DataHandler(sessionid)
-dataHandler.preloadPages(['postquestionnaire.html'])
 
 # Calculates the mean of a numeric array (for feedback)
 mean = (numericArray) ->
@@ -80,21 +79,21 @@ class Session
 	buttonClick: (e) ->
 		@currBlock.buttonClick(e)
 
-# This class simply displays the post questionnaire and 
-# collects information from it once button is clicked
-class Questionnaire
-	start: (@exitTrial) ->
-		dataHandler.completeTask()
-		$('body').html(dataHandler.getPage('postquestionnaire.html'))
+# # This class simply displays the post questionnaire and 
+# # collects information from it once button is clicked
+# class Questionnaire
+# 	start: (@exitTrial) ->
+# 		dataHandler.completeTask()
+# 		$('body').html(dataHandler.getPage('postquestionnaire.html'))
 
-	buttonClick: ->
+# 	buttonClick: ->
 			
-			dataHandler.recordUnstructuredData 'rating', $('#rating').val()
-			dataHandler.recordUnstructuredData 'difficulty', $('#difficulty_slider').val()
-			dataHandler.recordUnstructuredData 'distraction', $('#distraction_slider').val()
-			dataHandler.recordUnstructuredData 'openended', $('#openended').val()
-			dataHandler.saveData()
-			@exitTrial()
+# 			dataHandler.recordUnstructuredData 'rating', $('#rating').val()
+# 			dataHandler.recordUnstructuredData 'difficulty', $('#difficulty_slider').val()
+# 			dataHandler.recordUnstructuredData 'distraction', $('#distraction_slider').val()
+# 			dataHandler.recordUnstructuredData 'openended', $('#openended').val()
+# 			dataHandler.saveData()
+# 			@exitTrial()
 		  
 
 

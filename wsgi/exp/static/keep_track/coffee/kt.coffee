@@ -37,21 +37,18 @@ fillGrid = (cats) ->
 		i = i + 1
 
 closeGrid = (func) ->
-	$('#responses').fadeOut()
-	setTimeout (=> 
-		func()
-	) , 500
+	$('#responses').hide()
+	func()
 
 clearGrid = ->
 	# Reset grid before showing again
 	$('.resp').removeClass('btn-primary')
 
-stim = {"pracLists": [[["Animals"], ["Cat"], ["Horse", "Mile", "Steel", "Cat", "Green", "Aunt"]]
-, [["Metals", "Countries"], ["Steel", "Mexico"], ["Red" ,"Blue" ,"Tin" ,"Cow" ,"Yellow" ,"England" ,"Lion" ,"Meter" ,"Inch" ,"Mexico" ,"Black" ,"Brother" ,"Green" ,"Cat" ,"Yard" ,"Aunt" ,"Uncle" ,"Steel" ,"Horse" ,"Father"]]]}
+stim = {"pracLists": [[["Animals"], ["Cat"], ["Horse", "Mile", "Steel", "Cat", "Green", "Aunt"]], [["Metals", "Countries"], ["Steel", "Mexico"], ["Red" ,"Blue" ,"Tin" ,"Cow" ,"Yellow" ,"England" ,"Lion" ,"Meter" ,"Inch" ,"Mexico" ,"Black" ,"Brother" ,"Green" ,"Cat" ,"Yard" ,"Aunt" ,"Uncle" ,"Steel" ,"Horse" ,"Father"]]]}
 
-real_stim = [[["Distances", "Animals", "Countries"], ["Mile", "Cat", "France"], ["Father", "Mexico", "Tin", "Germany", "Platinum", "Green", "Orange", "Tiger", "Mile", "Blue", "Steel", "Cat", "France", "Black", "Aunt"]],  [["Colors", "Metals", "Relatives", "Distances"], ["Blue", "Tin", "Brother", "Meter"], ["Horse", "Russia", "Mexico", "Zinc", "Father", "Canada", "Lion", "France", "Sister", "England", "Brother", "Tin", "Meter", "Blue", "Tiger"]],  [["Animals", "Countries", "Colors", "Metals", "Relatives"], ["Horse", "Russia", "Orange", "Copper", "Mother"], ["Canada", "Russia", "Steel", "Platinum", "Uncle", "Centimeter", "Foot", "Copper", "Meter", "Aunt", "Mother", "Yellow", "Horse", "Orange", "Mile"]],  [["Countries", "Colors", "Metals", "Relatives"], ["Mexico", "Red", "Iron", "Mother"], ["Black", "Mile", "Meter", "Aunt", "Horse", "Mexico", "Steel", "Sister", "Copper", "Red", "Inch", "Dog", "Mother", "Iron", "Foot"]],  [["Relatives", "Distances", "Animals", "Countries", "Colors"], ["Uncle", "Foot", "Cat", "Russia", "Yellow"], ["Germany", "Inch", "Steel", "Blue", "Lion", "Orange", "Zinc", "Yellow", "Cat", "Canada", "Foot", "Russia", "Copper", "Uncle", "Tin"]],  [["Metals", "Relatives", "Distances", "Animals"], ["Platinum", "Father", "Mile", "Cow"], ["Platinum", "Centimeter", "Yard", "France", "Mile", "Horse", "Brother", "Red", "Yellow", "Blue", "Father", "Tiger", "Cow", "Green", "Russia"]], [["Distances", "Animals", "Countries", "Colors", "Metals"], ["Yard", "Dog", "England", "Red", "Zinc"], ["Yard", "France", "Iron", "Black", "Green", "Red", "Tin", "Cow", "Brother", "Aunt", "Dog", "Zinc", "England", "Sister", "Uncle"]]]
+real_stim = [[["Distances", "Animals", "Countries"], ["Mile", "Cat", "France"], ["Father", "Mexico", "Tin", "Germany", "Platinum", "Green", "Orange", "Tiger", "Mile", "Blue", "Steel", "Cat", "France", "Black", "Aunt"]],  [["Colors", "Metals", "Relatives", "Distances"], ["Blue", "Tin", "Brother", "Meter"], ["Horse", "Russia", "Mexico", "Zinc", "Father", "Canada", "Lion", "France", "Sister", "England", "Brother", "Tin", "Meter", "Blue", "Tiger"]],  [["Animals", "Countries", "Colors", "Metals", "Relatives"], ["Horse", "Russia", "Orange", "Copper", "Mother"], ["Canada", "Russia", "Steel", "Platinum", "Uncle", "Centimeter", "Foot", "Copper", "Meter", "Aunt", "Mother", "Yellow", "Horse", "Orange", "Mile"]],  [["Countries", "Colors", "Metals", "Relatives"], ["Mexico", "Red", "Iron", "Mother"], ["Black", "Mile", "Meter", "Aunt", "Horse", "Mexico", "Steel", "Sister", "Copper", "Red", "Inch", "Dog", "Mother", "Iron", "Foot"]],  [["Relatives", "Distances", "Animals", "Countries", "Colors"], ["Uncle", "Foot", "Cat", "Russia", "Yellow"], ["Germany", "Inch", "Steel", "Blue", "Lion", "Orange", "Zinc", "Yellow", "Cat", "Canada", "Foot", "Russia", "Copper", "Uncle", "Tin"]],  [["Metals", "Relatives", "Distances", "Animals"], ["Platinum", "Father", "Mile", "Cow"], ["Platinum", "Centimeter", "Yard", "France", "Mile", "Horse", "Brother", "Red", "Yellow", "Blue", "Father", "Tiger", "Cow", "Green", "Russia"]]]
 
-categories = {"Animals": ["Dog", "Cat", "Tiger", "Horse", "Lion", "Cow"], "Relatives": ["Sister", "Mother", "Brother", "Aunt", "Father", "Uncle"], "Distances" :["Mile", "Centimeter", "Inch", "Foot", "Meter", "Yard"], "Countries" :["Germany", "Russia", "Canada", "France", "England", "Mexico"], "Metals" :["Zinc", "Tin", "Steel", "Iron", "Copper", "Platinum"], "Colors" :["Red", "Green", "Blue", "Yellow", "Black", "Orange"]}
+categories = {"Animals": ["Cat", "Cow", "Dog",  "Horse", "Lion",  "Tiger"], "Relatives": ['Aunt', 'Brother', 'Father', 'Mother', 'Sister', 'Uncle'], "Distances" :['Centimeter', 'Foot', 'Inch', 'Meter', 'Mile', 'Yard'], "Countries" :['Canada', 'England', 'France', 'Germany', 'Mexico', 'Russia'], "Metals" :['Copper', 'Iron', 'Platinum', 'Steel', 'Tin', 'Zinc'], "Colors" :['Black', 'Blue', 'Green', 'Orange', 'Red', 'Yellow']}
 
 all_cats = ['Distances', 'Relatives', 'Animals', 'Countries', 'Metals', 'Colors']
 
@@ -78,7 +75,6 @@ class Instruction
 		if @leftKey?
 			keyText(@leftKey, 'left')
 
-		## Show key picture and text next to it
 		keyText(@rightKey, 'right')
 
 	# Record RT, check if response is correct (if applicable), and 
@@ -89,6 +85,7 @@ class Instruction
 			if @corrResp is button
 				$('#correct').modal('show')
 				setTimeout (=> $('#correct').modal('hide')), 2000
+				hideButtons()
 				setTimeout (=> @exitTrial()), 2000
 				acc = 1
 			else
@@ -99,9 +96,11 @@ class Instruction
 		else # If there is no correct answer, just record what was pressed
 			if button.id is 'leftText' or button.id is 'leftButton'
 				acc = 'BACK'
+				hideButtons()
 				@exitTrial false
 			else if button.id is 'rightText' or button.id is 'rightButton'
 				acc = 'FORWARD'
+				hideButtons()
 				@exitTrial()
 
 		dataHandler.recordTrialData({'block': @message, 'rt': rt, 'resp': button, 'acc': acc})
@@ -111,8 +110,6 @@ class InstGrid
 		@maxClicks = @correct.length
 		@nClicks = 0
 		@triesBeforeHint = 2
-
-
 
 	start: (@exitTrial) ->
 		fillGrid(@categories)
@@ -138,9 +135,11 @@ class InstGrid
 
 	buttonClick: (button) ->
 		if button.id is 'leftText' or button.id is 'leftButton'
+			hideButtons()
 			closeGrid(@exitTrial false)
 		else if button.id is 'rightText' or button.id is 'rightButton'
 			if not @correct
+				hideButtons()
 				closeGrid(@exitTrial)
 			else
 				@checkResponses()
@@ -172,6 +171,7 @@ class InstGrid
 				allCorr = false
 
 		if allCorr
+			hideButtons()
 			closeGrid(@exitTrial)
 			$('#correct').modal('show')
 			setTimeout (=> $('#correct').modal('hide')), 1500
@@ -187,7 +187,7 @@ class InstGrid
 		setTimeout (=> $('#error').modal('hide')), 1800
 
 class Block
-	constructor: (@condition, @message, trial_structure) ->
+	constructor: (@condition, @message, trial_structure, @message2 = ' ') ->
 		@trialNumber = 0
 		@categories = trial_structure[0]
 		@target_words = trial_structure[1]
@@ -195,15 +195,15 @@ class Block
 		@max_trials = @words.length
 		
 		upper_cats = [cat.toUpperCase() for cat in @categories]
-		@catText = upper_cats[0].join("&nbsp&nbsp")
-
-		
+		@catText = upper_cats[0].join("&nbsp&nbsp&nbsp&nbsp")
 
 	# When block starts, hide buttons, show message, and after IBI start first trial
 	start: (@exitBlock) ->
 		# Show ready message
 		hideButtons()
+		$('#inst').html(' ')
 		$('#topText').html(@message)
+		$('#bottomText').html(@message2)
 
 		setTimeout (=> 
 			$('#topText').html(" ")
@@ -224,7 +224,7 @@ class Block
 	getResponses: ->
 		$('#bottomText').html(" ")
 		$('#topText').html(" ")
-		$('#inst').html("Please enter the last word of each category")
+		$('#inst').html("Please enter the last word of each category.")
 
 		keyText('Submit', 'right')
 
@@ -256,9 +256,8 @@ class Block
 		
 	
 class PracBlock extends Block
-	constructor: (@condition, @message, trial_structure, speed=3500) ->
-		super @condition, @message, trial_structure
-		@words = (new Word(word, speed) for word in trial_structure[2])
+	constructor: (@condition, @message, trial_structure, @message2 = 'Keep track of the last word from each category') ->
+		super @condition, @message, trial_structure, @message2
 	getResponses: ->
 		$('#bottomText').html(" ")
 		$('#topText').html(" ")

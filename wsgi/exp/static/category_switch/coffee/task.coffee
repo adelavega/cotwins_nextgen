@@ -2,7 +2,7 @@
 
 trialLength = 5000
 ITI = 350
-IBI = 2000
+IBI = 3000
 
 red = '#FF6C47'
 
@@ -112,19 +112,19 @@ class Slide1 extends Instruction
 	start: (@exitTrial) ->
 		super @exitTrial
 		multilineText("#{String.fromCharCode(9888)}", 0, 185, "80px Arial", 30, false, fillColor='red')
-		ctx.drawImage(jkey, 88, canvas.height-67, 43, 43)
+		ctx.drawImage(jkey, 88, canvas.height-127, 43, 43)
 
 class LivingKeyMap extends Instruction
 	start: (@exitTrial) ->
 		super @exitTrial
-		ctx.drawImage(fkey, 205, canvas.height-137, 50, 50)
-		ctx.drawImage(jkey, 165, canvas.height-70, 50, 50)
+		ctx.drawImage(fkey, 205, canvas.height-197, 50, 50)
+		ctx.drawImage(jkey, 165, canvas.height-130, 50, 50)
 
 class SizeKeyMap extends Instruction
 	start: (@exitTrial) ->
 		super @exitTrial
-		ctx.drawImage(fkey, 165, canvas.height-75, 50, 50)
-		ctx.drawImage(jkey, 145, canvas.height-5, 50, 50)
+		ctx.drawImage(fkey, 165, canvas.height-135, 50, 50)
+		ctx.drawImage(jkey, 145, canvas.height-65, 50, 50)
 
 class Block
 	constructor: (@condition, @message, @trials) ->
@@ -135,7 +135,7 @@ class Block
 	start: (@exitBlock) ->
 		# Show ready message
 		hideButtons()
-		multilineText(@message, "center", "center", "35px Arial", 75)
+		multilineText(@message, "center", "center", "33px Arial", 33)
 
 		setTimeout (=> @nextTrial()), IBI
 
@@ -361,22 +361,21 @@ blocks = [
 	new Instruction instructions[7]	
 	new Instruction instructions[8], "Back", "Start practice!", null, 'white', '#66FF99'
 	new common.FinishInstructions
-	new PracticeBlock "livingPrac", "Get ready for 12 words!", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['living_prac'])
+	new PracticeBlock "livingPrac", "Get ready for 12 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['living_prac'])
 	new Instruction instructions[9], null, "Continue"
 	new Block "livingReal", "Get ready for 34 words!", (new FeedbackTrial(n[0], n[1]) for n in all_stim['living_real'])
 	new SizeKeyMap instructions[10], null
 	new Instruction instructions[11], " ", " ", "f"
 	new Instruction instructions[12], "Back", "Start practice!", null, 'white', '#66FF99'
-	new PracticeBlock "sizePrac", "Get ready for 12 words!", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['size_prac'])
+	new PracticeBlock "sizePrac", "Get ready for 12 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['size_prac'])
 	new Instruction instructions[13], null, "Start!", null, 'white', '#66FF99'
-	new Block "sizeReal", "Get ready for 34 words!", (new FeedbackTrial(n[0], n[1]) for n in all_stim['size_real'])
+	new Block "sizeReal", "Get ready for 34 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new FeedbackTrial(n[0], n[1]) for n in all_stim['size_real'])
 	new Instruction instructions[14], null, "Start practice!", null, 'white', '#66FF99'
-	new PracticeBlock "mixedPrac", "Get ready for 24 words!", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['mixed_prac'])
+	new PracticeBlock "mixedPrac", "Get ready for 24 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new PracFeedbackTrial(n[0], n[1]) for n in all_stim['mixed_prac'])
 	new Instruction instructions[15], null, "Start!", null, 'white', '#66FF99'
-	new Block "mixedReal1", "Get ready for 68 words!", (new FeedbackTrial(n[0], n[1]) for n in all_stim['mixed_real_1'])
+	new Block "mixedReal1", "Get ready for 54 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new FeedbackTrial(n[0], n[1]) for n in all_stim['mixed_real_1'])
 	new Instruction instructions[16], null, "Start!", null, 'white', '#66FF99'
-	new Block "mixedReal2", "Get ready for 68 words!", (new FeedbackTrial(n[0], n[1]) for n in all_stim['mixed_real_2'])
-	new common.Questionnaire
+	new Block "mixedReal2", "Get ready for 54 words!\n\nRespond as quickly as you can\nwithout making mistakes.", (new FeedbackTrial(n[0], n[1]) for n in all_stim['mixed_real_2'])
 ]
 
 currSession = new common.Session(blocks)
