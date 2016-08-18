@@ -18,9 +18,9 @@
 
   jkey = new Image();
 
-  fkey.src = "static/img/f_key.png";
+  fkey.src = "/exp/static/img/f_key.png";
 
-  jkey.src = "static/img/j_key.png";
+  jkey.src = "/exp/static/img/j_key.png";
 
   this.fkey = fkey;
 
