@@ -70,7 +70,8 @@ def enterexp():
     """
 
     if not utils.check_qs(request.form, ['sessionid']):
-        raise ExperimentError('improper_inputs')
+        return jsonify({"status": "improper_inputs"})
+        current_app.logger.error("Improper inputs in /inexp")
     else:
         session_id = request.form['sessionid']
 
@@ -249,4 +250,4 @@ def handle_exp_error(exception):
     """Handle errors by sending an error page."""
     current_app.logger.error(
         "%s (%s) %s", exception.value, exception.errornum, str(dict(request.args)))
-    return exception.error_page(request, "gfgemail@gfg.edu") ## Update this email
+    return exception.error_page(request, "support@cotwins.org") ## Update this email
