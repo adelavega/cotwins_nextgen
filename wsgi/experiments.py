@@ -41,7 +41,7 @@ def start_exp(exp_name):
     else:
         token = request.args['token']
 
-    current_app.logger.info("Referrer:" %
+    current_app.logger.info("Referrer: %s" %
                             (request.referrer))
     
     browser, platform = utils.check_browser_platform(request.user_agent)
