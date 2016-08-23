@@ -40,6 +40,9 @@ def start_exp(exp_name):
         raise ExperimentError('improper_inputs')
     else:
         token = request.args['token']
+
+    current_app.logger.info("Referrer:" %
+                            (request.headers.get("Referer")))
     
     browser, platform = utils.check_browser_platform(request.user_agent)
 
