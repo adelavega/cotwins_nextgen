@@ -213,7 +213,7 @@ var DataHandler = function(sessionid) {
 	}
 
 	self.exitTask = function(){
-		window.location.replace('http://agile-ratio-824.appspot.com/surveyCompleted?tokenID=' + uniqueid +  '&surveyID=' + experimentname)
+		window.location.replace(refer + 'surveyCompleted?token=' + uniqueid +  '&surveyID=' + experimentname)
 	}
 
 	// To be fleshed out with backbone views in the future.

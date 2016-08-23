@@ -56,7 +56,7 @@ def start_exp(exp_name):
 
     return render_template(exp_name + "/exp.html", experimentname=exp_name, 
         sessionid=session.session_id, debug=current_app.config['EXP_DEBUG'],
-        uniqueid=token)
+        uniqueid=token, refer=request.referrer)
 
 
 @experiments.route('/inexp', methods=['POST'])
