@@ -41,7 +41,7 @@ def start_exp(exp_name):
     else:
         token = request.args['token']
 
-    if 'develop' in request.args and request.args['develop'] == 'True':
+    if current_app.config['DEVELOP'] is True:
         refer =  'https://agile-ratio-824.appspot.com/'
     else:
         refer = 'http://co-twins.appspot.com/'

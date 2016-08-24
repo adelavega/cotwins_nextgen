@@ -2,6 +2,7 @@ import os
 
 class Config(object):
     DEBUG = False
+    DEVELOPMENT = False
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = '\xc8U;\xe2w\xb3[c-:\xceeKu\xc9f\xd2\xaac\xfb\x1dZ\xc2\xc2'
@@ -13,7 +14,7 @@ class Config(object):
         SQLALCHEMY_DATABASE_URI = 'postgres://localhost/assesment'
 
 class ProductionConfig(Config):
-    DEBUG = False
+    pass
 
 class StagingConfig(Config):
     DEVELOPMENT = True
