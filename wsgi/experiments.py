@@ -45,7 +45,7 @@ def start_exp(exp_name):
     if current_app.config['DEVELOPMENT'] is True:
         refer =  'https://agile-ratio-824.appspot.com/'
     else:
-        refer = 'http://co-twins.appspot.com/'
+        refer = 'https://co-twins.appspot.com/'
 
     current_app.logger.info("Referrer: %s" %
                             (request.referrer))
