@@ -25,7 +25,14 @@
                         We will contact you if there is an opportunitiy to re-take this test in the future. 
                         Thanks again. </p><br>
 
-                    
+                {% elif errornum == 1005 %}
+                <h1>No mobile devices allowed</h1>
+                        <hr>
+                                    
+                        <p>Unfortunately, this test cannot be completed on mobile devices.<br><br>
+                        
+                       Please try again from a desktop computer to complete this test!</p><br>
+   
 
                 {% else %}
 

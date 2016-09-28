@@ -6,6 +6,7 @@ from database import db
 import db_utils
 import datetime
 import json
+import re
 
 import utils
 
@@ -50,6 +51,14 @@ def start_exp(exp_name):
                             (request.referrer))
     
     browser, platform = utils.check_browser_platform(request.user_agent)
+    uas = request.user_agent.string
+
+    if (platform == 'android') \
+    or (platform == 'iphone') \
+    or (platform == 'windows' and re.search('Windows Phone OS', uas)) \
+    or (browser == 'opera') \
+    or (re.search('BlackBerry', uas)):
+        raise ExperimentError('browser_type_not_allowed')
 
     current_app.logger.info("Subject: %s entered with %s platform and %s browser" %
                             (token, platform, browser))
