@@ -8,7 +8,7 @@ class Config(object):
     EXP_DEBUG = False
 
     try:
-        SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
+        SQLALCHEMY_DATABASE_URI = os.environ['POSTGRESQL_SERVICE_HOST']
     except:
         SQLALCHEMY_DATABASE_URI = 'postgres://localhost/assesment'
 
