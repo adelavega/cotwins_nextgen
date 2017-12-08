@@ -5,7 +5,7 @@ from utils import convert_timestamp
 
 class Session(db.Model):
     """ Session table. One is allocated per new valid visit """
-    session_id = db.Column(db.Integer, primary_key=True) 
+    session_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
     browser = db.Column(db.String(), nullable=False)
     platform = db.Column(db.String(), nullable=False)
@@ -22,13 +22,13 @@ class Session(db.Model):
 
 class CategorySwitch(db.Model):
     """ CategorySwitch experiment table """
-    cs_id = db.Column(db.Integer, primary_key=True) 
+    cs_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
     trial_num = db.Column(db.Integer)
     response = db.Column(db.String())
-    reaction_time = db.Column(db.Float) 
+    reaction_time = db.Column(db.Float)
     accuracy = db.Column(db.Integer)
     block = db.Column(db.String())
     question = db.Column(db.String())  # TBD
@@ -83,9 +83,9 @@ class CategorySwitch(db.Model):
 
 class KeepTrack(db.Model):
     """ KeepTrack experiment table """
-    kt_id = db.Column(db.Integer, primary_key=True) 
+    kt_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
-    session_id = db.Column(db.Integer, db.ForeignKey('session.session_id')) 
+    session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
     trial_num = db.Column(db.Integer)
     reaction_time = db.Column(db.Float)
     accuracy = db.Column(db.String())
@@ -96,8 +96,8 @@ class KeepTrack(db.Model):
 
     ### FIX
     def __repr__(self):
-        return "KT Values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (self.kt_id, self.token, 
-        self.session_id, self.trial_num, self.reaction_time, self.accuracy, self.block, 
+        return "KT Values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" % (self.kt_id, self.token,
+        self.session_id, self.trial_num, self.reaction_time, self.accuracy, self.block,
         self.timestamp, self.target_words, self.input_words)
 
     def add_json_data(self, json_trial):
@@ -110,7 +110,7 @@ class KeepTrack(db.Model):
             self.reaction_time = 0
         else:
             self.reaction_time = float(trial_data['rt'])
-	#current_app.logger.info("self.reaction_time is %s") % (self.reaction_time)	
+	#current_app.logger.info("self.reaction_time is %s") % (self.reaction_time)
 
         if 'acc' not in trial_data:
             self.accuracy = "null"
@@ -139,7 +139,7 @@ class KeepTrack(db.Model):
 
 class EventData(db.Model):
     """ EventData for all experiments """
-    ev_id = db.Column(db.Integer, primary_key=True) 
+    ev_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
     session_id = db.Column(db.Integer, db.ForeignKey('session.session_id'))
     exp_name = db.Column(db.String(), nullable=False)
@@ -154,7 +154,7 @@ class EventData(db.Model):
 
     def add_json_data(self, json_event):
         """ Parse and add backbone.js json data for a event """
- 	
+
         self.event_type = json_event['eventtype']
         self.value = str(json_event['value'])
 
@@ -162,8 +162,8 @@ class EventData(db.Model):
         #     self.value_1 = str(json_event['value'][0])
         #     self.value_2 = str(json_event['value'][1])
         #     self.value_3 = str(json_event['value'])
-        # self.interval = 
-	self.interval = json_event['interval']
+        # self.interval =
+        self.interval = json_event['interval']
         self.timestamp = convert_timestamp(json_event['timestamp'])
 
         current_app.logger.info(
@@ -171,13 +171,13 @@ class EventData(db.Model):
 
 class QuestionData(db.Model):
     """ Feedback-form question-data for all experiments """
-    q_id = db.Column(db.Integer, primary_key=True) 
+    q_id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(), nullable=False)
     session_id = db.Column(
         db.Integer, db.ForeignKey('session.session_id'))
     exp_name = db.Column(db.String(), nullable=False)
-    rating = db.Column(db.String())          
-    difficulty = db.Column(db.String()) 
+    rating = db.Column(db.String())
+    difficulty = db.Column(db.String())
     distraction = db.Column(db.String())      #informative
     #extrahelp = db.Column(db.String)        #added new
     openended = db.Column(db.Unicode())
@@ -197,7 +197,7 @@ class QuestionData(db.Model):
         elif json_event['difficulty'] == "Not rated":
             json_event['difficulty'] = "0"
         self.difficulty = json_event['difficulty']
-      
+
         if json_event['distraction'] == "No distraction":
             json_event['distraction'] = "1"
         elif json_event['distraction'] == "Some distractions":
@@ -207,10 +207,9 @@ class QuestionData(db.Model):
         elif json_event['distraction'] == "Not rated":
             json_event['distraction'] = "0"
         self.distraction = json_event['distraction']
-       
+
         #self.extrahelp = json_event['extrahelp']
-        self.openended = clean_db_string(json_event['openended'])	
+        self.openended = clean_db_string(json_event['openended'])
 
         current_app.logger.info(
             "%s added to QuestionData for session id %s " % (self.q_id, self.session_id))
-       
