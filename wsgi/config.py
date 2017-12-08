@@ -8,7 +8,12 @@ class Config(object):
     EXP_DEBUG = False
 
     try:
-        SQLALCHEMY_DATABASE_URI = os.environ['POSTGRESQL_SERVICE_HOST']
+        user = os.environ['DATABASE_USER']
+        password = os.environ['DATABASE_PASSWORD']
+        host = os.environ['DATA_SERVICE_HOST']
+        port = os.environ['DATA_SERVICE_PORT']
+        database = os.environ['DATABASE_NAME']
+        SQLALCHEMY_DATABASE_URI = 'postgres://{}:{}@{}:{}/{}'.format(user, password, host, port, database)
     except:
         SQLALCHEMY_DATABASE_URI = 'postgres://localhost/assesment'
 
@@ -23,7 +28,3 @@ class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
     EXP_DEBUG = True
-
-
-
-
